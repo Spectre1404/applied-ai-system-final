@@ -1,33 +1,27 @@
 """
 Command line runner for the Music Recommender Simulation.
-
-This file helps you quickly run and test your recommender.
-
-You will implement the functions in recommender.py:
-- load_songs
-- score_song
-- recommend_songs
+Demonstrates all 4 challenges: advanced features, scoring modes,
+diversity penalty, and visual ASCII table output.
 """
 
 import os
-from src.recommender import load_songs, recommend_songs
+from src.recommender import load_songs, recommend_songs, format_recommendations_table
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 
-def print_recommendations(profile_name: str, user_prefs: dict, songs: list, k: int = 5) -> None:
-    """Print top-k recommendations for a given user profile."""
-    print(f"\n{'=' * 55}")
-    print(f"Profile: {profile_name}")
-    print(f"Prefs: genre={user_prefs.get('genre')}, mood={user_prefs.get('mood')}, energy={user_prefs.get('energy')}")
-    print(f"{'=' * 55}")
-
-    recommendations = recommend_songs(user_prefs, songs, k=k)
-    for i, rec in enumerate(recommendations, 1):
-        song, score, explanation = rec
-        print(f"{i}. {song['title']} — Score: {score:.2f}")
-        print(f"   Because: {explanation}")
-    print()
+def print_recommendations(
+    profile_name: str,
+    user_prefs: dict,
+    songs: list,
+    k: int = 5,
+    mode: str = "balanced",
+    diversity: bool = False,
+) -> None:
+    """Print top-k recommendations as a formatted ASCII table for a given profile."""
+    recommendations = recommend_songs(user_prefs, songs, k=k, mode=mode, diversity=diversity)
+    label = f"{profile_name} [mode={mode}{'  diversity=ON' if diversity else ''}]"
+    print(format_recommendations_table(recommendations, label))
 
 
 def main() -> None:
@@ -36,28 +30,70 @@ def main() -> None:
     profiles = [
         (
             "High-Energy Pop",
-            {"genre": "pop", "mood": "happy", "energy": 0.9, "valence": 0.8, "likes_acoustic": False},
+            {
+                "genre": "pop", "mood": "happy", "energy": 0.9, "valence": 0.8,
+                "likes_acoustic": False, "preferred_decade": "2020s",
+                "preferred_mood_tags": ["euphoric", "uplifting", "feel-good"],
+                "min_popularity": 70,
+            },
         ),
         (
             "Chill Lofi",
-            {"genre": "lofi", "mood": "calm", "energy": 0.3, "valence": 0.5, "likes_acoustic": True},
+            {
+                "genre": "lofi", "mood": "calm", "energy": 0.3, "valence": 0.5,
+                "likes_acoustic": True, "preferred_decade": "2020s",
+                "preferred_mood_tags": ["cozy", "focused", "nostalgic"],
+                "min_popularity": 60,
+            },
         ),
         (
             "Deep Intense Rock",
-            {"genre": "rock", "mood": "angry", "energy": 0.95, "valence": 0.2, "likes_acoustic": False},
+            {
+                "genre": "rock", "mood": "angry", "energy": 0.95, "valence": 0.2,
+                "likes_acoustic": False, "preferred_decade": "2010s",
+                "preferred_mood_tags": ["aggressive", "powerful", "intense"],
+                "min_popularity": 60,
+            },
         ),
         (
             "Conflicting: High Energy + Sad Mood",
-            {"genre": "pop", "mood": "sad", "energy": 0.9, "valence": 0.1, "likes_acoustic": False},
+            {
+                "genre": "pop", "mood": "sad", "energy": 0.9, "valence": 0.1,
+                "likes_acoustic": False, "preferred_mood_tags": ["melancholic"],
+                "min_popularity": 0,
+            },
         ),
         (
             "Unknown Genre",
-            {"genre": "bossa nova", "mood": "romantic", "energy": 0.5, "valence": 0.6, "likes_acoustic": True},
+            {
+                "genre": "bossa nova", "mood": "romantic", "energy": 0.5, "valence": 0.6,
+                "likes_acoustic": True, "preferred_mood_tags": ["sensual", "warm"],
+                "min_popularity": 0,
+            },
         ),
     ]
 
+    # Challenge 2: Scoring mode comparison
+    print("\n" + "=" * 80)
+    print("CHALLENGE 2: SCORING MODE COMPARISON — High-Energy Pop")
+    print("=" * 80)
+    for mode in ["balanced", "genre_first", "mood_first", "energy_focused"]:
+        print_recommendations("High-Energy Pop", profiles[0][1], songs, k=3, mode=mode)
+
+    # All profiles, balanced mode
+    print("\n" + "=" * 80)
+    print("ALL PROFILES — BALANCED MODE")
+    print("=" * 80)
     for name, prefs in profiles:
-        print_recommendations(name, prefs, songs)
+        print_recommendations(name, prefs, songs, k=5)
+
+    # Challenge 3: Diversity penalty comparison
+    print("\n" + "=" * 80)
+    print("CHALLENGE 3: DIVERSITY PENALTY — Chill Lofi")
+    print("=" * 80)
+    print_recommendations("Chill Lofi (no diversity)", profiles[1][1], songs, k=5, diversity=False)
+    print_recommendations("Chill Lofi (diversity ON)", profiles[1][1], songs, k=5, diversity=True)
+
 
 
 if __name__ == "__main__":
