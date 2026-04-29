@@ -1,223 +1,87 @@
-# 🎵 Music Recommender Simulation
+# Explainable AI Music Recommendation Assistant
 
-## Project Summary
+An applied AI system that takes a natural-language music request, retrieves relevant songs from a local dataset, ranks the best matches, and explains why each recommendation was chosen. This project extends my earlier **Music_recommender** into a more complete AI system with retrieval-based reasoning, guardrails, logging, and reliability testing.
 
-In this project you will build and explain a small music recommender system.
+## Original Project
 
-Your goal is to:
+The original **Music_recommender** project focused on recommending songs based on similarity and user preference patterns. It could suggest related music, but it did not yet support natural-language queries, explanation generation, guardrails, or structured reliability evaluation.
 
-- Represent songs and a user "taste profile" as data
-- Design a scoring rule that turns that data into recommendations
-- Evaluate what your system gets right and wrong
-- Reflect on how this mirrors real world AI recommenders
+## Title and Summary
 
-Replace this paragraph with your own summary of what your version does.
+This project improves the recommender into an explainable applied AI system. It matters because music recommendation is a useful everyday task, and transparent recommendations are easier to trust than black-box outputs.
 
----
+## Architecture Overview
 
-## How The System Works
+The system takes a natural-language prompt and extracts useful intent such as mood, genre, artist, or activity. It then retrieves matching songs from the dataset, ranks the best candidates, and generates short explanations for each recommendation. Guardrails handle weak inputs or no-match cases, while logging and evaluation components track performance and support reliability testing.
 
-This is a content-based recommender. It scores every song against a user taste profile
-and returns the top 5 matches with plain-English explanations.
+![Architecture Diagram](assets/applied-ai-flowchart.png)
 
-**User profile** stores: `genre`, `mood`, `energy` (0–1), `valence` (0–1), `likes_acoustic` (bool).
+## Setup Instructions
 
-**Scoring recipe** (max 5.5 points per song):
+### 1. Clone the repository
+```bash
+git clone https://github.com/Spectre1404/applied-ai-system-final.git
+cd applied-ai-system-final
+```
 
-| Rule | Exact | Neighbor | Miss |
-|---|---|---|---|
-| Genre match | +2.0 | +1.0 | +0.0 |
-| Mood match | +1.5 | +0.75 | +0.0 |
-| Energy proximity | `1.0 × (1 - \|user - song\|)` | — | — |
-| Valence proximity | `0.5 × (1 - \|user - song\|)` | — | — |
-| Acousticness match | +0.5 | — | +0.0 |
+### 2. Create a virtual environment
+```bash
+python -m venv venv
+source venv/bin/activate
+```
 
-Genre neighbors (e.g. `hip-hop ↔ electronic, pop`) and mood neighbors (e.g. `energetic ↔ intense`) give partial credit to close-but-not-exact matches so the top-5 list is never too narrow.
-
-**Data flow:** `user_prefs` → `load_songs()` → `score_song()` for each song → sort descending → top-k slice → ranked output with explanations.
-
-**Known biases:**
-- Genre carries 36% of the max score — a perfect mood/energy match in a neighboring genre will still rank below a weaker genre-exact match.
-- No negative signals — the system cannot penalize songs a user dislikes.
-- Acousticness uses a hard threshold (0.6 / 0.4) rather than a continuous scale, so borderline songs get no partial credit.
-
----
-
-## Getting Started
-
-### Setup
-
-1. Create a virtual environment (optional but recommended):
-
-   ```bash
-   python -m venv .venv
-   source .venv/bin/activate      # Mac or Linux
-   .venv\Scripts\activate         # Windows
-
-2. Install dependencies
-
+### 3. Install dependencies
 ```bash
 pip install -r requirements.txt
 ```
 
-3. Run the app:
+## Run the Project
 
 ```bash
-python -m src.main
+python src/main.py
 ```
 
-### Running Tests
+## Sample Interactions
 
-Run the starter tests with:
+### Example 1
+**Input:** `Recommend calm songs for studying`
 
-```bash
-pytest
-```
+**Output:**  
+- Top recommendations from the dataset.
+- Short reasons like calm mood, low energy, or acoustic fit.
+- Confidence score showing how strong the match is.
 
-You can add more tests in `tests/test_recommender.py`.
+### Example 2
+**Input:** `Give me upbeat pop songs for a workout`
 
----
+**Output:**  
+- Energetic pop songs from the dataset.
+- Explanations based on genre and energy.
+- Higher confidence because the query is specific.
 
-## Experiments You Tried
+### Example 3
+**Input:** `asdfghjkl`
 
-Use this section to document the experiments you ran. For example:
+**Output:**  
+`Please enter a mood, artist, genre, or activity.`
 
-- What happened when you changed the weight on genre from 2.0 to 0.5
-- What happened when you added tempo or valence to the score
-- How did your system behave for different types of users
+## Design Decisions
 
----
+A retrieval-based design was chosen so the system uses real songs from the dataset before generating the final recommendation. This makes the AI more grounded and explainable than a generic response.
 
-## Limitations and Risks
+A simple workflow was preferred over a more complex agentic setup because the main goal was a reliable, polished system that could be tested and explained clearly. Logging and guardrails were added so failures would be easier to diagnose and the app could fail safely.
 
-Summarize some limitations of your recommender.
+## Testing Summary
 
-Examples:
+The system was tested with clear prompts, vague prompts, invalid input, and edge cases where no strong match existed. It performed best when the user gave a clear mood, genre, artist, or activity.
 
-- It only works on a tiny catalog
-- It does not understand lyrics or language
-- It might over favor one genre or mood
-
-You will go deeper on this in your model card.
-
----
+Example summary:
+- 5 out of 6 tests passed.
+- Average confidence score: 0.81.
+- Main weakness: vague prompts with too little context.
 
 ## Reflection
 
-Read and complete `model_card.md`:
+This project showed that AI systems are strongest when they are transparent, testable, and grounded in real data. Retrieval improved trust because recommendations were based on the dataset rather than invented output.
 
-[**Model Card**](model_card.md)
-
-Write 1 to 2 paragraphs here about what you learned:
-
-- about how recommenders turn data into predictions
-- about where bias or unfairness could show up in systems like this
-
-
----
-
-## 7. `model_card_template.md`
-
-Combines reflection and model card framing from the Module 3 guidance. :contentReference[oaicite:2]{index=2}  
-
-```markdown
-# 🎧 Model Card - Music Recommender Simulation
-
-## 1. Model Name
-
-Give your recommender a name, for example:
-
-> VibeFinder 1.0
-
----
-
-## 2. Intended Use
-
-- What is this system trying to do
-- Who is it for
-
-Example:
-
-> This model suggests 3 to 5 songs from a small catalog based on a user's preferred genre, mood, and energy level. It is for classroom exploration only, not for real users.
-
----
-
-## 3. How It Works (Short Explanation)
-
-Describe your scoring logic in plain language.
-
-- What features of each song does it consider
-- What information about the user does it use
-- How does it turn those into a number
-
-Try to avoid code in this section, treat it like an explanation to a non programmer.
-
----
-
-## 4. Data
-
-Describe your dataset.
-
-- How many songs are in `data/songs.csv`
-- Did you add or remove any songs
-- What kinds of genres or moods are represented
-- Whose taste does this data mostly reflect
-
----
-
-## 5. Strengths
-
-Where does your recommender work well
-
-You can think about:
-- Situations where the top results "felt right"
-- Particular user profiles it served well
-- Simplicity or transparency benefits
-
----
-
-## 6. Limitations and Bias
-
-Where does your recommender struggle
-
-Some prompts:
-- Does it ignore some genres or moods
-- Does it treat all users as if they have the same taste shape
-- Is it biased toward high energy or one genre by default
-- How could this be unfair if used in a real product
-
----
-
-## 7. Evaluation
-
-How did you check your system
-
-Examples:
-- You tried multiple user profiles and wrote down whether the results matched your expectations
-- You compared your simulation to what a real app like Spotify or YouTube tends to recommend
-- You wrote tests for your scoring logic
-
-You do not need a numeric metric, but if you used one, explain what it measures.
-
----
-
-## 8. Future Work
-
-If you had more time, how would you improve this recommender
-
-Examples:
-
-- Add support for multiple users and "group vibe" recommendations
-- Balance diversity of songs instead of always picking the closest match
-- Use more features, like tempo ranges or lyric themes
-
----
-
-## 9. Personal Reflection
-
-A few sentences about what you learned:
-
-- What surprised you about how your system behaved
-- How did building this change how you think about real music recommenders
-- Where do you think human judgment still matters, even if the model seems "smart"
-
+It also showed the value of guardrails and evaluation. Even a useful AI system needs fallback behavior, logging, and clear explanations to be dependable. One helpful AI suggestion was splitting the app into modular files; one weaker suggestion was adding unnecessary complexity before the core workflow was stable.
