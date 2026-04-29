@@ -91,3 +91,13 @@ AI isn't just about what works — it's about what's responsible. This project t
 While testing reliability, I was surprised by how sharply the system’s performance dropped on vague or overlapping prompts like “Recommend something good.” These cases often matched too many songs loosely, so the confidence and explanation were weak and less useful. This led me to strengthen the guardrails and add clearer fallbacks for truly ambiguous inputs.
 
 Collaborating with AI during this project helped me move faster and explore better designs. One helpful suggestion was breaking the recommender into modular components: retriever, recommender, guardrails, and evaluator, which made the code cleaner and easier to test. One flawed suggestion was proposing a more complex agent‑style loop early in the project; it would have added layers of abstraction and unnecessary planning steps that did not improve the core recommendation quality, made the behavior harder to debug, and risked over‑engineering the code. Overall, this project deepened my respect for the balance between powerful AI features, simple, testable code, and clear, responsible communication to the user.
+
+## VIDEO LINK: GOOGLE DRIVE (ANYONE WITH A LINK CAN ACCESS)
+
+https://drive.google.com/file/d/11-idlwMS6S6MGxTQjx-CmXZAjSSakTiX/view?usp=sharing
+
+## Repository Link
+GitHub Repository: https://github.com/Spectre1404/applied-ai-system-final
+
+## Portfolio Reflection
+This project shows that I can take an existing recommendation system and extend it into a more complete applied AI workflow with retrieval, explainability, guardrails, and evaluation. It reflects the way I approach AI engineering: I care about building systems that are practical, testable, and transparent, not just systems that generate outputs. I want my work to be useful in real settings and responsible in how it handles uncertainty, edge cases, and user trust.
